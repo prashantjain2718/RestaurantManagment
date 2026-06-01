@@ -40,6 +40,9 @@ public class RestaurantController {
                     handleCheckout();
                     break;
                 case 4:
+                    handleManageMenu();
+                    break;
+                case 5:
                     System.out.println("Exiting system. Have a great day!");
                     running = false;
                     break;
@@ -155,6 +158,160 @@ public class RestaurantController {
 
         activeOrders.remove(order);
         System.out.println("💳 Payment processed. Table " + tableNum + " is now free.");
+    }
+
+    // Submenu control driver for all Menu Management tasks (Add, Edit, Remove)
+    public void handleManageMenu() {
+        boolean inMenuMgmt = true;
+        while (inMenuMgmt) {
+            byte choice = view.displayMenuManagementAndGetChoice();
+            switch (choice) {
+                case 1:
+                    handleAddNewMenuItem();
+                    break;
+                case 2:
+                    handleEditMenuItem();
+                    break;
+                case 3:
+                    handleRemoveMenuItem();
+                    break;
+                case 4:
+                    inMenuMgmt = false;
+                    break;
+                default:
+                    view.displayErrorMessage("Unknown choice tracked in Menu Management.");
+            }
+        }
+    }
+
+    // Guides the operator through entering details for a new menu item
+    public void handleAddNewMenuItem() {
+        System.out.println("\n--- Add New Menu Item ---");
+        int id = view.promptForNewMenuItemId();
+
+        // Check if ID is unique
+        if (findMenuItemById(id) != null) {
+            view.displayErrorMessage("Item ID " + id + " already exists in the menu. All IDs must be unique.");
+            return;
+        }
+
+        String name = view.promptForMenuItemName();
+        double price = view.promptForMenuItemPrice();
+        String category = view.promptForMenuItemCategory();
+
+        try {
+            MenuItem newItem = new MenuItem(id, name, price, category);
+            masterMenu.add(newItem);
+            System.out.println("\n✅ Successfully added new menu item!");
+            System.out.println("👉 Details: ID: " + newItem.getId() + " | Name: " + newItem.getName() + " | Price: ₹" + String.format("%.2f", newItem.getPrice()) + " | Category: " + newItem.getCategory());
+        } catch (IllegalArgumentException e) {
+            view.displayErrorMessage("Failed to create menu item: " + e.getMessage());
+        }
+    }
+
+    // Handles editing a menu item's details (Name, Price, Category)
+    public void handleEditMenuItem() {
+        view.displayMenu(masterMenu);
+        int itemId = view.promptForMenuItemId();
+
+        // 0 can be used to cancel or exit
+        if (itemId == 0) {
+            System.out.println("↩️ Edit menu action cancelled.");
+            return;
+        }
+
+        MenuItem selectedItem = findMenuItemById(itemId);
+
+        if (selectedItem == null) {
+            view.displayErrorMessage("Item ID not found in master menu. Cancelled editing.");
+            return;
+        }
+
+        System.out.println("\n✏️ Editing details for: " + selectedItem.getName() + " (ID: " + selectedItem.getId() + ")");
+
+        // 1. Prompt for Name
+        String newName = view.promptForNewName(selectedItem.getName());
+        if (!newName.isEmpty()) {
+            try {
+                selectedItem.setName(newName);
+            } catch (IllegalArgumentException e) {
+                view.displayErrorMessage(e.getMessage());
+                return;
+            }
+        }
+
+        // 2. Prompt for Price
+        String newPriceStr = view.promptForNewPrice(selectedItem.getPrice());
+        if (!newPriceStr.isEmpty()) {
+            try {
+                double newPrice = Double.parseDouble(newPriceStr);
+                selectedItem.setPrice(newPrice);
+            } catch (IllegalArgumentException e) {
+                view.displayErrorMessage("Invalid price value entered. Skipping price update.");
+            }
+        }
+
+        // 3. Prompt for Category
+        String newCategory = view.promptForNewCategory(selectedItem.getCategory());
+        if (!newCategory.isEmpty()) {
+            try {
+                selectedItem.setCategory(newCategory);
+            } catch (IllegalArgumentException e) {
+                view.displayErrorMessage(e.getMessage());
+                return;
+            }
+        }
+
+        System.out.println("\n✅ Menu Item updated successfully!");
+        System.out.println("👉 Updated details: ID: " + selectedItem.getId() + " | Name: " + selectedItem.getName() + " | Price: ₹" + String.format("%.2f", selectedItem.getPrice()) + " | Category: " + selectedItem.getCategory());
+    }
+
+    // Deletes an item from the master menu after checking active dining tables and confirming
+    public void handleRemoveMenuItem() {
+        view.displayMenu(masterMenu);
+        System.out.println("\n--- Remove Menu Item ---");
+        int itemId = view.promptForMenuItemId();
+
+        if (itemId == 0) {
+            System.out.println("↩️ Remove menu action cancelled.");
+            return;
+        }
+
+        MenuItem selectedItem = findMenuItemById(itemId);
+        if (selectedItem == null) {
+            view.displayErrorMessage("Item ID not found in master menu.");
+            return;
+        }
+
+        // Check if the item is present in any active/unbilled orders
+        ArrayList<Byte> activeTablesWithItem = new ArrayList<>();
+        for (TableOrder order : activeOrders) {
+            for (OrderItem orderItem : order.getOrderedItems()) {
+                if (orderItem.getItem().getId() == itemId) {
+                    activeTablesWithItem.add(order.getTableNumber());
+                    break;
+                }
+            }
+        }
+
+        // Print warning if found in active tables
+        if (!activeTablesWithItem.isEmpty()) {
+            System.out.println("\n⚠️ [WARNING]: This item is currently active in ongoing dine-in orders!");
+            System.out.print("👉 Active on Table(s): ");
+            for (int i = 0; i < activeTablesWithItem.size(); i++) {
+                System.out.print(activeTablesWithItem.get(i) + (i < activeTablesWithItem.size() - 1 ? ", " : ""));
+            }
+            System.out.println("\nDeleting it will NOT affect their currently loaded bills (as they reference the item in memory),");
+            System.out.println("but waiters won't be able to add this item to any new or existing tables.");
+        }
+
+        boolean confirm = view.promptForDeleteConfirmation(selectedItem.getName());
+        if (confirm) {
+            masterMenu.remove(selectedItem);
+            System.out.println("\n🗑️ '" + selectedItem.getName() + "' (ID: " + selectedItem.getId() + ") has been permanently removed from the master menu.");
+        } else {
+            System.out.println("↩️ Removal cancelled. Item remains intact.");
+        }
     }
 
     // Pre-populates catalog with baseline dishes

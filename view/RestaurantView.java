@@ -19,16 +19,17 @@ public class RestaurantView {
                 System.out.println("1. Select Table & Order");
                 System.out.println("2. View Active Orders");
                 System.out.println("3. Checkout / Generate Bill");
-                System.out.println("4. Exit");
-                System.out.print("👉 Enter your choice (1-4): ");
+                System.out.println("4. Manage Menu (Add, Edit, Remove)");
+                System.out.println("5. Exit");
+                System.out.print("👉 Enter your choice (1-5): ");
 
                 String input = sc.nextLine().trim();
                 byte choice = Byte.parseByte(input);
                 
-                if (choice >= 1 && choice <= 4) {
+                if (choice >= 1 && choice <= 5) {
                     return choice;
                 }
-                System.out.println("❌ Invalid choice! Please select an option between 1 and 4.");
+                System.out.println("❌ Invalid choice! Please select an option between 1 and 5.");
             } catch (NumberFormatException e) {
                 System.out.println("❌ Invalid input! Please enter a single digit number.");
             }
@@ -122,6 +123,139 @@ public class RestaurantView {
                 System.out.println("❌ Count must be at least 1 person.");
             } catch (NumberFormatException e) {
                 System.out.println("❌ Invalid Input! Enter a valid small number.");
+            }
+        }
+    }
+
+    // Prompts for a new name, or empty to keep current
+    public String promptForNewName(String currentName) {
+        System.out.print("✏️ Enter new name (Press Enter to keep '" + currentName + "'): ");
+        return sc.nextLine().trim();
+    }
+
+    // Prompts for new price, or empty to keep current
+    public String promptForNewPrice(double currentPrice) {
+        while (true) {
+            System.out.print("💰 Enter new price (Press Enter to keep '" + String.format("%.2f", currentPrice) + "'): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty()) {
+                return input; // keep current
+            }
+            try {
+                double price = Double.parseDouble(input);
+                if (price >= 0.0) {
+                    return input;
+                }
+                System.out.println("❌ Price cannot be negative!");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid price format! Enter a valid decimal number.");
+            }
+        }
+    }
+
+    // Prompts for new category, or empty to keep current
+    public String promptForNewCategory(String currentCategory) {
+        System.out.print("📂 Enter new category (Press Enter to keep '" + currentCategory + "'): ");
+        return sc.nextLine().trim();
+    }
+
+    // Displays the Menu Management submenu and reads choice (1-4)
+    public byte displayMenuManagementAndGetChoice() {
+        while (true) {
+            try {
+                System.out.println("\n========== MANAGE MENU ==========");
+                System.out.println("1. Add New Menu Item");
+                System.out.println("2. Edit Existing Menu Item");
+                System.out.println("3. Remove Menu Item");
+                System.out.println("4. Back to Main Menu");
+                System.out.print("👉 Enter your choice (1-4): ");
+
+                String input = sc.nextLine().trim();
+                byte choice = Byte.parseByte(input);
+
+                if (choice >= 1 && choice <= 4) {
+                    return choice;
+                }
+                System.out.println("❌ Invalid choice! Please select an option between 1 and 4.");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid input! Please enter a single digit number.");
+            }
+        }
+    }
+
+    // Prompts for a new Menu Item ID
+    public int promptForNewMenuItemId() {
+        while (true) {
+            try {
+                System.out.print("🍔 Enter unique Menu Item ID (positive integer): ");
+                String input = sc.nextLine().trim();
+                int id = Integer.parseInt(input);
+                if (id > 0) {
+                    return id;
+                }
+                System.out.println("❌ Menu Item ID must be a positive integer.");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid ID! Please enter a valid integer value.");
+            }
+        }
+    }
+
+    // Prompts for a Menu Item Name
+    public String promptForMenuItemName() {
+        while (true) {
+            System.out.print("📝 Enter Menu Item Name: ");
+            String name = sc.nextLine().trim();
+            if (!name.isEmpty()) {
+                return name;
+            }
+            System.out.println("❌ Menu Item Name cannot be empty.");
+        }
+    }
+
+    // Prompts for a Menu Item Price
+    public double promptForMenuItemPrice() {
+        while (true) {
+            try {
+                System.out.print("💰 Enter Menu Item Price (₹): ");
+                String input = sc.nextLine().trim();
+                double price = Double.parseDouble(input);
+                if (price >= 0.0) {
+                    return price;
+                }
+                System.out.println("❌ Price cannot be negative.");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid price format! Enter a valid decimal number.");
+            }
+        }
+    }
+
+    // Prompts for a Menu Item Category
+    public String promptForMenuItemCategory() {
+        while (true) {
+            System.out.print("📂 Enter Menu Item Category (e.g. Starters, Main Course, Desserts, Beverages): ");
+            String category = sc.nextLine().trim();
+            if (!category.isEmpty()) {
+                return category;
+            }
+            System.out.println("❌ Category cannot be empty.");
+        }
+    }
+
+    // Prompts for deletion confirmation (returns true if confirmed)
+    public boolean promptForDeleteConfirmation(String name) {
+        while (true) {
+            try {
+                System.out.print("⚠️ Are you sure you want to permanently remove '" + name + "'? (1 for Yes, 0 for No): ");
+                String input = sc.nextLine().trim();
+                byte choice = Byte.parseByte(input);
+                if (choice == 1) {
+                    return true;
+                } else if (choice == 0) {
+                    return false;
+                }
+                System.out.println("❌ Invalid choice. Enter 1 for Yes or 0 for No.");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Invalid input. Please enter 1 or 0.");
             }
         }
     }

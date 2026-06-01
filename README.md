@@ -24,15 +24,21 @@ This system provides a frictionless interface for restaurant waiters and operato
 * Heavy reliance on defensive programming: every domain constructor validates parameters immediately.
 * Prevents corrupted domain states like negative item prices, zero or negative quantities, empty food category fields, or table numbers out of bounds (1 to 50).
 
-### 3. Smart Dine-in Session Flow & Cancellations
+### 3. Unified Menu Management (CRUD Capabilities)
+* **Add New Items**: Allows dynamic addition of new dishes to the catalog with robust validations (non-empty fields, positive decimal prices) and **duplicate-ID collision guards**.
+* **Edit Details**: Allows modifying the Name, Price, or Category of existing items. Prompts are built with optional overrides: operators can simply hit `Enter` to retain the current value.
+* **Remove Items**: Allows deleting menu items from the master catalog.
+* **Active Dine-In Safety Check**: Scans unbilled active orders before deletion. If the item is currently active on any tables, the system triggers a warning message detailing exactly which tables are dining on it, while preserving their current in-memory orders.
+
+### 4. Smart Dine-in Session Flow & Cancellations
 * Waiters can type `0` during order-taking to instantly cancel or finish their current addition loop.
 * If a table session is brand new and has no items upon cancellation, the system purges it from the active transaction registry automatically, saving memory and keeping dashboard tables clean.
 
-### 4. Interactive Split-Bill & GST Calculator
+### 5. Interactive Split-Bill & GST Calculator
 * Automatically calculates a constant `5%` tax (GST) on subtotal values.
 * Allows split-billing configurations among arbitrary guest counts, with dedicated exception safeguards.
 
-### 5. Architectural Cleanliness & Reordering
+### 6. Architectural Cleanliness & Reordering
 * Function structures in all source files are organized logically (Attributes ➡️ Constructor ➡️ Core Business / View Flow ➡️ Getters/Setters ➡️ Overrides).
 * Rich, comprehensive JavaDocs have been written for all public APIs, parameters, exceptions, and return types.
 
