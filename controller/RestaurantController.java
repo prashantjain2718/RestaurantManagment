@@ -12,7 +12,7 @@ public class RestaurantController {
     private final ArrayList<MenuItem> masterMenu; // Food menu item catalog
     private final ArrayList<TableOrder> activeOrders; // Ongoing dine-in table transactions
     private final RestaurantView view; // Attached console view
-    
+
     private static final double TAX_RATE = 0.05; // 5% GST
 
     // Constructor linking view and loading initial menu items
@@ -68,7 +68,7 @@ public class RestaurantController {
         while (addingItems) {
             view.displayMenu(masterMenu);
             int itemId = view.promptForMenuItemId();
-            
+
             // Allow waiter to stop or cancel order flow
             if (itemId == 0) {
                 if (currentOrder.getOrderedItems().isEmpty()) {
@@ -111,7 +111,8 @@ public class RestaurantController {
         }
         System.out.println("\n--- Current Active Tables Tracking ---");
         for (TableOrder order : activeOrders) {
-            System.out.println("• Table " + order.getTableNumber() + " | Unbilled Items Count: " + order.getOrderedItems().size());
+            System.out.println(
+                    "• Table " + order.getTableNumber() + " | Unbilled Items Count: " + order.getOrderedItems().size());
         }
     }
 
@@ -161,15 +162,23 @@ public class RestaurantController {
         // Starters
         masterMenu.add(new MenuItem(101, "Paneer Tikka", 240.00, "Starters"));
         masterMenu.add(new MenuItem(102, "Spring Rolls", 180.00, "Starters"));
+        masterMenu.add(new MenuItem(103, "Chilli Paneer", 220.00, "Starters"));
+        masterMenu.add(new MenuItem(104, "French Fries", 120.00, "Starters"));
 
         // Main Course
         masterMenu.add(new MenuItem(201, "Dal Makhani", 260.00, "Main Course"));
         masterMenu.add(new MenuItem(202, "Butter Roti", 30.00, "Main Course"));
         masterMenu.add(new MenuItem(203, "Kadhai Paneer", 290.00, "Main Course"));
+        masterMenu.add(new MenuItem(204, "Garlic Naan", 60.00, "Main Course"));
+        masterMenu.add(new MenuItem(205, "Veg Biryani", 240.00, "Main Course"));
+        masterMenu.add(new MenuItem(206, "Butter Chicken", 340.00, "Main Course"));
 
         // Desserts & Beverages
         masterMenu.add(new MenuItem(301, "Choco Lava Cake", 150.00, "Desserts"));
-        masterMenu.add(new MenuItem(302, "Iced Americano", 120.00, "Beverages"));
+        masterMenu.add(new MenuItem(302, "Gulab Jamun", 80.00, "Desserts"));
+        masterMenu.add(new MenuItem(303, "Iced Americano", 120.00, "Beverages"));
+        masterMenu.add(new MenuItem(304, "Fresh Lime Soda", 90.00, "Beverages"));
+        masterMenu.add(new MenuItem(305, "Masala Chai", 50.00, "Beverages"));
     }
 
     // Finds food item matching a Menu ID
